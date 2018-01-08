@@ -12,15 +12,16 @@
  */
 class TokenBucket {
 
-    public long tockens;
+    public long tokens;
     public int maxsize; 
     
     TokenBucket() {
         //TODO
-        /* Test Jonny */
+        this.tokens = 0;
+        this.maxsize = 0;
     }
 
-    void take(long tokens) {
+    void take(long i_tokens) {
         //TODO
         
     }
@@ -34,7 +35,11 @@ class TokenBucket {
         return false;
     }
 
-    void set(long tokens) {
+    void set(long i_tokens) {
         //TODO
+    }
+
+    void add(long i_tokens) {
+        this.tokens += i_tokens;
     }
 }

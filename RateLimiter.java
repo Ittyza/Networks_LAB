@@ -7,26 +7,41 @@
 public class RateLimiter implements Runnable {
     private final TokenBucket tokenBucket;
     private final Long maxBytesPerSecond;
+    private boolean soft;
+
 
     RateLimiter(TokenBucket tokenBucket, Long maxBytesPerSecond) {
         this.tokenBucket = tokenBucket;
         this.maxBytesPerSecond = maxBytesPerSecond;
+        this.soft = true;
     }
 
     @Override
     public void run() {
         //TODO
         
-        /* Soft rate limiter - use Tread.sleep() to time the tokens */
+        /* Soft rate limiter - use Tread.sleep() to1 time the tokens */
         
         while(true){
-            tokenBucket.set(maxBytesPerSecond);
+            
             
             try {
-                Thread.sleep(1000);
+                
+                Thread.sleep(1000); // adding maxBps to token bucket every second
+                if(this.soft){
+                    tokenBucket.add(maxBytesPerSecond);
+                } else {
+                    tokenBucket.set(maxBytesPerSecond);
+                }
+                
+
             } catch (Exception e){
                 
             }
+
+
+
+
         }
         
     }

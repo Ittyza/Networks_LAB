@@ -28,6 +28,16 @@ public class HTTPRangeGetter implements Runnable {
 
     private void downloadRange() throws IOException, InterruptedException {
         //TODO
+
+        while(!tokenBucket.terminated()){
+
+
+
+
+        }
+        
+        
+        
     }
 
     @Override

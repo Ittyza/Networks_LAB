@@ -1,4 +1,6 @@
 import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+
 
 public class IdcDm {
 
@@ -47,11 +49,32 @@ public class IdcDm {
     private static void DownloadURL(String url, int numberOfWorkers, Long maxBytesPerSecond) {
         
         //TODO
+      
         
-        TokenBucket token = new TokenBucket();
-        RateLimiter ratelimiter = new RateLimiter(token , maxBytesPerSecond);
-        BlockingQueue<Chunk> outQueue = new BlockingQueue<Chunk>();
+         // 1. Setup the Queue
+            BlockingQueue<Chunk> outQueue = new BlockingQueue<Chunk>();
+            //TokenBucket
+            TokenBucket token = new TokenBucket();
+            //DownloadableMetadata
+            DownloadableMetadata metadata = new DownloadableMetadata(url);
+            //FileWriter
+            FileWriter filewriter = new FileWriter(metadata , outQueue);
+            // RateLimeter
+            RateLimiter ratelimiter = new RateLimiter(token , maxBytesPerSecond);
+            //pool of HTTPRangeGetter
+    
         
+        
+        Range range = new Range(0,0);
+        
+       
+        
+        for(int i = 0; i < numberOfWorkers; i++){
+            
+             HTTPRangeGetter getter = new HTTPRangeGetter(url, range ,outQueue,token);
+           
+            
+        }
         
         
     	}
