@@ -1,0 +1,25 @@
+#!/bin/bash
+
+FILE1="/Users/jonathanwesfield/Desktop/Networks_LAB/IdcDm.java"
+FILE2="/Users/jonathanwesfield/Desktop/Networks_LAB/Chunk.java"
+FILE3="/Users/jonathanwesfield/Desktop/Networks_LAB/DownloadableMetadata"
+FILE4="/Users/jonathanwesfield/Desktop/Networks_LAB/FileWriter.java"
+FILE5="/Users/jonathanwesfield/Desktop/Networks_LAB/HTTPRangeGetter.java"
+FILE6="/Users/jonathanwesfield/Desktop/Networks_LAB/Range.java"
+FILE7="/Users/jonathanwesfield/Desktop/Networks_LAB/RateLimiter.java"
+FILE8="/Users/jonathanwesfield/Desktop/Networks_LAB/TokenBucket.java"
+
+
+javac "${FILE1}"
+javac "${FILE2}"
+javac "${FILE3}"
+javac "${FILE4}"
+javac "${FILE5}"
+javac "${FILE6}"
+javac "${FILE7}"
+javac "${FILE8}"
+
+
+echo $' \n *** Start *** \n'
+
+java IdcDm

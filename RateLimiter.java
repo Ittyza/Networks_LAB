@@ -16,5 +16,18 @@ public class RateLimiter implements Runnable {
     @Override
     public void run() {
         //TODO
+        
+        /* Soft rate limiter - use Tread.sleep() to time the tokens */
+        
+        while(true){
+            tokenBucket.set(maxBytesPerSecond);
+            
+            try {
+                Thread.sleep(1000);
+            } catch (Exception e){
+                
+            }
+        }
+        
     }
 }

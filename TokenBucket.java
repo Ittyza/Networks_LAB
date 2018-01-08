@@ -12,6 +12,9 @@
  */
 class TokenBucket {
 
+    public long tockens;
+    public int maxsize; 
+    
     TokenBucket() {
         //TODO
         /* Test Jonny */
@@ -19,6 +22,7 @@ class TokenBucket {
 
     void take(long tokens) {
         //TODO
+        
     }
 
     void terminate() {
@@ -27,6 +31,7 @@ class TokenBucket {
 
     boolean terminated() {
         //TODO
+        return false;
     }
 
     void set(long tokens) {
