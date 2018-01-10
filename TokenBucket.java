@@ -13,33 +13,40 @@
 class TokenBucket {
 
     public long tokens;
-    public int maxsize; 
+    public int maxAmountOfTokens;
+    public boolean isTerminated;
     
     TokenBucket() {
-        //TODO
         this.tokens = 0;
-        this.maxsize = 0;
+        this.maxAmountOfTokens = 0;
+        this.isTerminated = false;
     }
 
     void take(long i_tokens) {
-        //TODO
+        this.tokens -= i_tokens;
         
     }
 
     void terminate() {
-        //TODO
+        this.isTerminated = true;
     }
 
     boolean terminated() {
-        //TODO
-        return false;
+        return this.isTerminated;
     }
 
     void set(long i_tokens) {
-        //TODO
+        this.tokens = i_tokens;
     }
 
     void add(long i_tokens) {
-        this.tokens += i_tokens;
+        if(i_tokens > this.maxAmountOfTokens){
+            this.tokens = maxAmountOfTokens;
+        } else {
+           this.tokens += i_tokens;
+        }
     }
 }
+
+
+

@@ -1,3 +1,4 @@
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 
@@ -18,7 +19,22 @@ public class FileWriter implements Runnable {
     }
 
     private void writeChunks() throws IOException {
-        //TODO
+        
+    	FileOutputStream output_File = new FileOutputStream(downloadableMetadata.getFilename());
+    	
+    	// TODO: write metadeta updates
+    	
+    	 while(!chunkQueue.isEmpty()){	 
+    		 try {
+				Chunk chunk = chunkQueue.take();
+				output_File.write(chunk.getData());
+			} catch (InterruptedException e) {
+				
+			}
+    	 }
+    	
+    	output_File.close();
+    	
     }
 
     @Override
