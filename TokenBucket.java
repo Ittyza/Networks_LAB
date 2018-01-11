@@ -13,7 +13,7 @@
 class TokenBucket {
 
     public long tokens;
-    public int maxAmountOfTokens;
+    public long maxAmountOfTokens;
     public boolean isTerminated;
     
     TokenBucket() {

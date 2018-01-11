@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.concurrent.*;
 import java.util.concurrent.BlockingQueue;
 
@@ -22,7 +23,8 @@ public class IdcDm {
                 maxBytesPerSecond = Long.parseLong(args[2]);
         }
 
-        String url = args[0];
+       // String url = args[0];
+        String url = "https://archive.org/download/Mario1_500/Mario1_500.avi";
 
         System.err.printf("Downloading");
         if (numberOfWorkers > 1)
@@ -48,34 +50,26 @@ public class IdcDm {
      */
     private static void DownloadURL(String url, int numberOfWorkers, Long maxBytesPerSecond) {
         
-        //TODO
-      
+      System.out.println(1);
+    	DownloadableMetadata metadata = new DownloadableMetadata(url);
+    	  	
+    	LinkedBlockingQueue<Chunk> chunkQueue = new LinkedBlockingQueue<Chunk>();
+    	System.out.print(2);
+         FileWriter fileWriter = new FileWriter(metadata, chunkQueue);
+         Thread writerThread = new Thread(fileWriter);
+         writerThread.start();
+         Thread[] httpGetterThread = new Thread[numberOfWorkers];
+         System.out.print(3);
+         TokenBucket tokenbucket = new TokenBucket();
+         tokenbucket.maxAmountOfTokens = maxBytesPerSecond;
+         RateLimiter ratelimiter = new RateLimiter(tokenbucket , maxBytesPerSecond);
+         System.out.print(4);
+         Thread rateLimiterThread = new Thread(ratelimiter);
+         rateLimiterThread.start();
+         System.out.print(5);
+         
         
-         // 1. Setup the Queue
-            BlockingQueue<Chunk> outQueue = new BlockingQueue<Chunk>();
-            //TokenBucket
-            TokenBucket token = new TokenBucket();
-            //DownloadableMetadata
-            DownloadableMetadata metadata = new DownloadableMetadata(url);
-            //FileWriter
-            FileWriter filewriter = new FileWriter(metadata , outQueue);
-            // RateLimeter
-            RateLimiter ratelimiter = new RateLimiter(token , maxBytesPerSecond);
-            //pool of HTTPRangeGetter
-    
-        
-        
-        Range range = new Range(0,0);
-        
-       
-        
-        for(int i = 0; i < numberOfWorkers; i++){
-            
-             HTTPRangeGetter getter = new HTTPRangeGetter(url, range ,outQueue,token);
-           
-            
-        }
-        
-        
+        metadata.delete();
+        System.out.print(5);
     	}
 }

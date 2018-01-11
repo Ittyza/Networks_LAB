@@ -1,4 +1,7 @@
+import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -29,11 +32,31 @@ public class HTTPRangeGetter implements Runnable {
     private void downloadRange() throws IOException, InterruptedException {
         //TODO
 
-        while(!outQueue.isEmpty()){
+    	URL url = new URL(this.url);
+    	HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
+    	// check response code 
+    	
+    	httpConnection.setRequestMethod("GET");
+        httpConnection.setReadTimeout(READ_TIMEOUT);
+        httpConnection.setConnectTimeout(CONNECT_TIMEOUT);
+        httpConnection.setRequestProperty("Range", "bytes="+range.getStart() +"-"+range.getEnd());
+        httpConnection.connect();
+        
+       
+        BufferedInputStream  dataInputStream = new  BufferedInputStream(httpConnection.getInputStream());
+        
+        byte data[] = new byte[CHUNK_SIZE];
+        int numOfBytesRead = 0;
+        long offset = range.getStart();
 
+        while ((numOfBytesRead = dataInputStream.read(data, 0, CHUNK_SIZE)) != -1)
+        {
+            outQueue.add(new Chunk(data, offset, numOfBytesRead));
+            offset += numOfBytesRead;
         }
         
         
+        dataInputStream.close();
         
     }
 
@@ -42,8 +65,8 @@ public class HTTPRangeGetter implements Runnable {
         try {
             this.downloadRange();
         } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            //TODO
+           
+            System.err.println("Download range "+ this.range +" failed");
         }
     }
 }

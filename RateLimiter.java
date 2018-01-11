@@ -22,17 +22,17 @@ public class RateLimiter implements Runnable {
         
         /* Soft rate limiter - use Tread.sleep() to1 time the tokens */
         
-        while(tokenBucket.terminated == false){
+        while(tokenBucket.terminated() == false){
             try {
-                
+            	 if(this.soft){
+                     tokenBucket.add(maxBytesPerSecond);
+                 } else {
+                     tokenBucket.set(maxBytesPerSecond);
+                 }
                 Thread.sleep(1000); // adding maxBps to token bucket every second
-                if(this.soft){
-                    tokenBucket.add(maxBytesPerSecond);
-                } else {
-                    tokenBucket.set(maxBytesPerSecond);
-                }
+               System.out.println("ratelimiter");
             } catch (Exception e){
-                
+            	 System.err.println("Download failed:" + e);
             }
         }
     }
