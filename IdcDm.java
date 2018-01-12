@@ -50,26 +50,43 @@ public class IdcDm {
      */
     private static void DownloadURL(String url, int numberOfWorkers, Long maxBytesPerSecond) {
         
-      System.out.println(1);
-    	DownloadableMetadata metadata = new DownloadableMetadata(url);
-    	  	
-    	LinkedBlockingQueue<Chunk> chunkQueue = new LinkedBlockingQueue<Chunk>();
-    	System.out.print(2);
+  
+    	 DownloadableMetadata metadata = new DownloadableMetadata(url);
+    	 LinkedBlockingQueue<Chunk> chunkQueue = new LinkedBlockingQueue<Chunk>();
+    	 // set up writer and start thread
          FileWriter fileWriter = new FileWriter(metadata, chunkQueue);
          Thread writerThread = new Thread(fileWriter);
          writerThread.start();
-         Thread[] httpGetterThread = new Thread[numberOfWorkers];
-         System.out.print(3);
+         // set up tokenbucket and start thread
          TokenBucket tokenbucket = new TokenBucket();
          tokenbucket.maxAmountOfTokens = maxBytesPerSecond;
-         RateLimiter ratelimiter = new RateLimiter(tokenbucket , maxBytesPerSecond);
-         System.out.print(4);
-         Thread rateLimiterThread = new Thread(ratelimiter);
-         rateLimiterThread.start();
-         System.out.print(5);
+        
+         
+         
+         Thread[] httpGetterThread = new Thread[numberOfWorkers];
+        
+         
+         while(metadata.isCompleted() == false){
+        	 
+        	 Range rangeToDownload = metadata.getMissingRange();
+        	 
+        	 RateLimiter ratelimiter = new RateLimiter(tokenbucket , maxBytesPerSecond);
+             Thread rateLimiterThread = new Thread(ratelimiter);
+             rateLimiterThread.start();
+             
+        	 
+        	 
+        	 
+         }
+         
+         
+        
+        
+         
+     
          
         
         metadata.delete();
-        System.out.print(5);
+     
     	}
 }

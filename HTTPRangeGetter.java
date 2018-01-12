@@ -30,32 +30,45 @@ public class HTTPRangeGetter implements Runnable {
     }
 
     private void downloadRange() throws IOException, InterruptedException {
-        //TODO
+      
 
     	URL url = new URL(this.url);
     	HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-    	// check response code 
     	
     	httpConnection.setRequestMethod("GET");
         httpConnection.setReadTimeout(READ_TIMEOUT);
         httpConnection.setConnectTimeout(CONNECT_TIMEOUT);
-        httpConnection.setRequestProperty("Range", "bytes="+range.getStart() +"-"+range.getEnd());
+        // this is for the range request to be legit
+        String rangeString = String.format("bytes=%d-%d", range.getStart() , range.getEnd());
+        httpConnection.setRequestProperty("Range", rangeString);
         httpConnection.connect();
         
        
         BufferedInputStream  dataInputStream = new  BufferedInputStream(httpConnection.getInputStream());
-        
-        byte data[] = new byte[CHUNK_SIZE];
-        int numOfBytesRead = 0;
-        long offset = range.getStart();
+        // not sure when to take tokens but i think its before the loop 
+        tokenBucket.take(CHUNK_SIZE);
 
-        while ((numOfBytesRead = dataInputStream.read(data, 0, CHUNK_SIZE)) != -1)
-        {
-            outQueue.add(new Chunk(data, offset, numOfBytesRead));
-            offset += numOfBytesRead;
+        int code = httpConnection.getResponseCode();
+        // these codes are the good ones according to RFC 7233 (you must read that one!)
+        if(code == 200 || code == 206){
+        	
+        	byte data[] = new byte[CHUNK_SIZE];
+            int bytesRead = 0;
+            long offset = range.getStart();
+
+            // reads chunk_size of bytes and adds to chunk queue
+            while ((bytesRead = dataInputStream.read(data, 0, CHUNK_SIZE)) != -1)
+            {
+                outQueue.add(new Chunk(data, offset, bytesRead));
+                offset += bytesRead;
+            }
+        	
         }
         
         
+        
+        
+        httpConnection.disconnect();
         dataInputStream.close();
         
     }

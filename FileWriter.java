@@ -1,5 +1,6 @@
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -20,20 +21,27 @@ public class FileWriter implements Runnable {
 
     private void writeChunks() throws IOException {
         
-    	FileOutputStream output_File = new FileOutputStream(downloadableMetadata.getFilename());
     	
+    	// creates output stream in current folder
+    	
+    	RandomAccessFile outfile = new RandomAccessFile(downloadableMetadata.getFilename(), "rw");
     	// TODO: write metadeta updates
     	
-    	 while(!chunkQueue.isEmpty()){	 
+    	 while(true){	 
     		 try {
+    			 
 				Chunk chunk = chunkQueue.take();
-				output_File.write(chunk.getData());
+				if(chunk.getOffset() == -1){
+					System.out.println("end of writing!");
+    				break; 
+    			 }
+				outfile.write(chunk.getData(), (int)chunk.getOffset(), chunk.getSize_in_bytes());
 			} catch (InterruptedException e) {
 				
 			}
     	 }
     	
-    	output_File.close();
+    	outfile.close();
     	
     }
 
@@ -42,8 +50,7 @@ public class FileWriter implements Runnable {
         try {
             this.writeChunks();
         } catch (IOException e) {
-            e.printStackTrace();
-            //TODO
+            System.err.println("Error " + e.toString());
         }
     }
 }
