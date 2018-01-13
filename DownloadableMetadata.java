@@ -17,7 +17,7 @@ class DownloadableMetadata {
  
     // added by me 
     private Range firstRange;
-    private double size;
+    public double FileSize;
     private ArrayList<Range> downloadedRanges;
     
     private int[] rangeMap; /// might be needed
@@ -27,9 +27,16 @@ class DownloadableMetadata {
         this.filename = getName(url);
         this.metadataFilename = getMetadataName(filename);
         
+        
         this.firstRange = null;
-        this.size = 0; 
+        //this.size = 0; 
         downloadedRanges = new ArrayList<Range>();
+    }
+    
+    private void initRanges(){
+    	
+    	
+    	
     }
 
     private static String getMetadataName(String filename) {

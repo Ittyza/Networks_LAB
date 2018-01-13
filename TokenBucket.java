@@ -10,43 +10,61 @@
  * - terminated(): return true if the bucket is terminated, false otherwise
  *
  */
-class TokenBucket {
 
-    public long tokens;
-    public long maxAmountOfTokens;
-    public boolean isTerminated;
+import java.util.concurrent.atomic.*;
+import java.util.concurrent.Semaphore;
+
+
+
+
+public class TokenBucket {
+
+    public AtomicLong m_NumOfTokens = new AtomicLong();
+    public AtomicBoolean m_terminated = new AtomicBoolean(false);
+    public Semaphore m_Semaphore;
     
-    TokenBucket() {
-        this.tokens = 0;
-        this.maxAmountOfTokens = 0;
-        this.isTerminated = false;
+    public static int maxAmountOfTokes = 0;
+    
+    
+    public TokenBucket() {
+        m_NumOfTokens.set(1);
+        m_terminated.set(false);
+        m_Semaphore = new Semaphore(1);
     }
 
-    void take(long i_tokens) {
-        this.tokens -= i_tokens;
-        
-    }
-
-    void terminate() {
-        this.isTerminated = true;
-    }
-
-    boolean terminated() {
-        return this.isTerminated;
-    }
-
-    void set(long i_tokens) {
-        this.tokens = i_tokens;
-    }
-
-    void add(long i_tokens) {
-        if(i_tokens > this.maxAmountOfTokens){
-            this.tokens = maxAmountOfTokens;
-        } else {
-           this.tokens += i_tokens;
+    public synchronized void take(long tokens) {
+        if(m_NumOfTokens.get() - tokens < 0) {
+            try {
+                m_Semaphore.wait();
+            }catch (InterruptedException e){
+                System.err.println(e.getCause());
+            }
         }
+
+        m_NumOfTokens.addAndGet(-tokens);
+    }
+
+    public void terminate() {
+        m_terminated.getAndSet(true);
+    }
+
+    public boolean terminated() {
+        return m_terminated.get();
+    }
+
+    public void set(long tokens) {
+        m_NumOfTokens.getAndSet(tokens);
+        m_Semaphore.notify();
+    }
+
+    public void add(long tokens){
+        m_NumOfTokens.getAndAdd(tokens);
+        m_Semaphore.notify();
+    }
+
+    private synchronized void notifyAvailableTokens(){
+
     }
 }
-
 
 
