@@ -15,56 +15,90 @@ import java.util.concurrent.atomic.*;
 import java.util.concurrent.Semaphore;
 
 
+class TokenBucket {
+	
+	private AtomicLong tokenAmount;
+	private AtomicBoolean isTerminate;
 
+    TokenBucket() {
+    	this.isTerminate = new AtomicBoolean(false);
+    	this.tokenAmount = new AtomicLong();
+    }
 
-public class TokenBucket {
+    synchronized void take(long tokens) {
+    	long currentAmount = this.tokenAmount.get();
+    	// setting the amount of available tokens to be the current amount minus the taken tokens
+    	this.tokenAmount.set(currentAmount - tokens); 
+    	
+    }
 
-    public AtomicLong m_NumOfTokens = new AtomicLong();
-    public AtomicBoolean m_terminated = new AtomicBoolean(false);
-    public Semaphore m_Semaphore;
+    void terminate() {
+    	this.isTerminate.set(true);
+    }
+
+    boolean terminated() {
+    	return this.isTerminate.get();
+    }
+
+    void set(long tokens) {
+        this.tokenAmount.set(tokens);
+    }
     
-    public static int maxAmountOfTokes = 0;
+    void add(long tokens) {
+    	if(this.tokenAmount.addAndGet(tokens) > 0){
+    	}
+    }
     
-    
-    public TokenBucket() {
-        m_NumOfTokens.set(1);
-        m_terminated.set(false);
-        m_Semaphore = new Semaphore(1);
-    }
-
-    public synchronized void take(long tokens) {
-        if(m_NumOfTokens.get() - tokens < 0) {
-            try {
-                m_Semaphore.wait();
-            }catch (InterruptedException e){
-                System.err.println(e.getCause());
-            }
-        }
-
-        m_NumOfTokens.addAndGet(-tokens);
-    }
-
-    public void terminate() {
-        m_terminated.getAndSet(true);
-    }
-
-    public boolean terminated() {
-        return m_terminated.get();
-    }
-
-    public void set(long tokens) {
-        m_NumOfTokens.getAndSet(tokens);
-        m_Semaphore.notify();
-    }
-
-    public void add(long tokens){
-        m_NumOfTokens.getAndAdd(tokens);
-        m_Semaphore.notify();
-    }
-
-    private synchronized void notifyAvailableTokens(){
-
-    }
 }
+
+//public class TokenBucket {
+//
+//    public AtomicLong m_NumOfTokens = new AtomicLong();
+//    public AtomicBoolean m_terminated = new AtomicBoolean(false);
+//    public Semaphore m_Semaphore;
+//    
+//    public static int maxAmountOfTokes = 0;
+//    
+//    
+//    public TokenBucket() {
+//        m_NumOfTokens.set(1);
+//        m_terminated.set(false);
+//        m_Semaphore = new Semaphore(1);
+//    }
+//
+//    public synchronized void take(long tokens) {
+//        if(m_NumOfTokens.get() - tokens < 0) {
+//            try {
+//                m_Semaphore.wait();
+//            }catch (InterruptedException e){
+//                System.err.println(e.getCause());
+//            }
+//        }
+//
+//        m_NumOfTokens.addAndGet(-tokens);
+//    }
+//
+//    public void terminate() {
+//        m_terminated.getAndSet(true);
+//    }
+//
+//    public boolean terminated() {
+//        return m_terminated.get();
+//    }
+//
+//    public void set(long tokens) {
+//        m_NumOfTokens.getAndSet(tokens);
+//        m_Semaphore.notify();
+//    }
+//
+//    public void add(long tokens){
+//        m_NumOfTokens.getAndAdd(tokens);
+//        m_Semaphore.notify();
+//    }
+//
+//    private synchronized void notifyAvailableTokens(){
+//
+//    }
+//}
 
 

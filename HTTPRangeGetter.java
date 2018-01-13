@@ -1,5 +1,6 @@
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +30,38 @@ public class HTTPRangeGetter implements Runnable {
         this.tokenBucket = tokenBucket;
     }
 
+//    private void downloadRange() throws IOException, InterruptedException {
+//		int bytesRead;
+//		long offset = this.range.getStart();
+//		byte[] data = new byte[CHUNK_SIZE];
+//		Chunk chunk;
+//		InputStream stream;
+//		URL urlObj = new URL(this.url);
+//		HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
+//
+//		// setting connection: timeout, read timeout method and protected range
+//		// of reading (this thread range)
+//		connection.setConnectTimeout(CONNECT_TIMEOUT);
+//		connection.setReadTimeout(READ_TIMEOUT);
+//		connection.setRequestMethod("GET");
+//		connection.setRequestProperty("Range", "bytes=" + this.range.getStart() + "-" + (this.range.getEnd()));
+//		connection.connect();
+//
+//		stream = connection.getInputStream();
+//		tokenBucket.take(CHUNK_SIZE);
+//		// while the worker is still in his defined range
+//		while ((bytesRead = stream.read(data, 0, (int) CHUNK_SIZE)) != -1) {
+//		
+//				chunk = new Chunk(data, offset, bytesRead);
+//				this.outQueue.add(chunk);
+//				offset += bytesRead + 1;
+//				System.out.println(offset);
+//				tokenBucket.take(CHUNK_SIZE);
+//		}
+//		stream.close();
+//		connection.disconnect();
+//	}
+    
     private void downloadRange() throws IOException, InterruptedException {
       
 
@@ -46,10 +79,11 @@ public class HTTPRangeGetter implements Runnable {
        
         BufferedInputStream  dataInputStream = new  BufferedInputStream(httpConnection.getInputStream());
         // not sure when to take tokens but i think its before the loop 
-        tokenBucket.take(CHUNK_SIZE);
+        
 
         int code = httpConnection.getResponseCode();
         // these codes are the good ones according to RFC 7233 (you must read that one!)
+        System.out.println("code" + code);
         if(code == 200 || code == 206){
         	
         	byte data[] = new byte[CHUNK_SIZE];
@@ -61,6 +95,8 @@ public class HTTPRangeGetter implements Runnable {
             {
                 outQueue.add(new Chunk(data, offset, bytesRead));
                 offset += bytesRead;
+                //tokenBucket.take(CHUNK_SIZE);
+                System.out.println("offset " + offset);
             }
         	
         }

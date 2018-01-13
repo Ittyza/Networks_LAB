@@ -13,7 +13,7 @@ public class RateLimiter implements Runnable {
     RateLimiter(TokenBucket tokenBucket, Long maxBytesPerSecond) {
         this.tokenBucket = tokenBucket;
         this.maxBytesPerSecond = maxBytesPerSecond;
-        this.soft = true;
+        this.soft = false;
     }
 
     @Override

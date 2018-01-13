@@ -8,8 +8,8 @@ import java.util.concurrent.BlockingQueue;
 
 public class IdcDm {
 
-	private static final long RANGE_SIZE = 512000 * 2; // 0.5 MB
-	
+	private static final long RANGE_SIZE = 512000  ; // 0.5 MB
+	private static long fileLength;
     /**
      * Receive arguments from the command-line, provide some feedback and start the download.
      *
@@ -23,13 +23,15 @@ public class IdcDm {
             System.err.printf("usage:\n\tjava IdcDm URL [MAX-CONCURRENT-CONNECTIONS] [MAX-DOWNLOAD-LIMIT]\n");
             System.exit(1);
         } else if (args.length >= 2) {
-            numberOfWorkers = Integer.parseInt(args[1]);
+           // numberOfWorkers = Integer.parseInt(args[1]);
             if (args.length == 3)
                 maxBytesPerSecond = Long.parseLong(args[2]);
         }
 
        // String url = args[0];
-        String url = "https://archive.org/download/Mario1_500/Mario1_500.avi";
+       // String url = "https://archive.org/download/Mario1_500/Mario1_500.avi";
+        //String url =  "https://upload.wikimedia.org/wikipedia/commons/d/dd/Big_%26_Small_Pumkins.JPG";
+        String url   =  "https://s.hswstatic.com/gif/big-bang-sound-1jpg.jpg";
 
         System.err.printf("Downloading");
         if (numberOfWorkers > 1)
@@ -70,7 +72,7 @@ public class IdcDm {
     		
     		URL urlObj = new URL(url);
     		HttpURLConnection connection = (HttpURLConnection) urlObj.openConnection();
-			long fileLength = connection.getContentLengthLong();
+			fileLength = connection.getContentLengthLong();
 			
 			System.out.println(fileLength);
 			
@@ -81,21 +83,34 @@ public class IdcDm {
              Thread rateLimiterThread = new Thread(ratelimiter);
              //rateLimiterThread.start();
 			
+			
+	         
+	         
+			
+			//Range currRange =  metadata.getMissingRange();
+//			Range currRange =  ranges[0];
+//			executor.submit(new HTTPRangeGetter(url, currRange, chunkQueue, tokenBucket));
+//			
+//			 currRange =  ranges[1];
+//			executor.submit(new HTTPRangeGetter(url, currRange, chunkQueue, tokenBucket));
+			
+			for (int i = 0; i < ranges.length; i++) {
+				executor.submit(new HTTPRangeGetter(url, ranges[i], chunkQueue, tokenBucket));
+			}
+			
 			 FileWriter fileWriter = new FileWriter(metadata, chunkQueue);
 	         Thread writerThread = new Thread(fileWriter);
-	        // writerThread.start();
+	         writerThread.start();
 			
-			
-			Range currRange =  metadata.getMissingRange();
 			
 //			while(currRange != null) {
 //				executor.submit(new HTTPRangeGetter(url, currRange, chunkQueue, tokenBucket));
-//				currRange = metadata.getMissingRange();
+//				currRange = ranges[0];
 //			}
-//			
-//			//executor.shutdown();
-//			
-//			tokenBucket.terminate();
+			
+			executor.shutdown();
+			
+			tokenBucket.terminate();
 			
 		
 		} catch (IOException e) {
@@ -152,18 +167,26 @@ public class IdcDm {
 		return connection.getContentLengthLong();
 	}
     
-    private static Range[] createRanges(long contentLength) {
+
+    
+       private static Range[] createRanges(long fileLength) {
 		long end, offset = 0;
 		int i;
-		int numOfRanges = (int) (contentLength / RANGE_SIZE);
+		int numOfRanges = (int) (fileLength / RANGE_SIZE) + 1;
 		Range[] ranges = new Range[numOfRanges];
-		for (i = 0; i < ranges.length - 1; i++) {
-			end = offset + RANGE_SIZE;
+		System.out.println(numOfRanges);
+		for (i = 0; i < ranges.length; i++) {
+			if (offset + RANGE_SIZE - 1 > fileLength){
+				end = fileLength;
+			} else {
+				end = offset + RANGE_SIZE - 1;
+			}
 			ranges[i] = new Range(offset, end);
-			offset = end;
-			System.out.println(offset);
+			
+			//System.out.println("Offset"+i+": " + offset + "\t End: " + end);
+			offset = end + 1;
 		}
-		ranges[i] = new Range(offset, contentLength - offset);
+		System.out.println("got ranges");
 		return ranges;
 	}
     

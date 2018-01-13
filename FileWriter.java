@@ -31,10 +31,11 @@ public class FileWriter implements Runnable {
     		 try {
     			 
 				Chunk chunk = chunkQueue.take();
+			
 				if(chunk.getOffset() == -1){
 					System.out.println("end of writing!");
     				break; 
-    			 }
+    			 } 
 				outfile.write(chunk.getData(), (int)chunk.getOffset(), chunk.getSize_in_bytes());
 			} catch (InterruptedException e) {
 				
