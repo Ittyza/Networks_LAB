@@ -6,6 +6,7 @@ class Range {
     private Long end;
     public boolean isWritten;
     public boolean inWorker;
+    public boolean isLastRange;
     
     public int index;
 

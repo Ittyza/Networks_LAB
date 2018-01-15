@@ -32,23 +32,34 @@ public class FileWriter implements Runnable {
     		 try {
     			 
 				Chunk chunk = chunkQueue.take();
-			
-				if(chunk.getOffset() == -1){
-					System.out.println("end of writing!");
-    				break; 
-    			 } 
-				System.out.println(totalBytesWritten + " : " + IdcDm.fileLength);
-				if(totalBytesWritten + 1000 >= IdcDm.fileLength){
-					break;
-				}
+//			
+//				if(chunk.getOffset() == -1){
+//					System.out.println("end of writing!");
+//    				break; 
+//    			 } 
+				//System.out.println(totalBytesWritten + " : " + IdcDm.fileLength);
 				
+				outfile.seek(chunk.getOffset());
 				outfile.write(chunk.getData(), 0, chunk.getSize_in_bytes());
 				totalBytesWritten += chunk.getSize_in_bytes();
-			} catch (InterruptedException e) {
+				//System.out.println("FileWriter "+totalBytesWritten + " : " + IdcDm.fileLength);
 				
+				
+				
+			} catch (InterruptedException e) {
+				System.out.println("INTERUPTED EXCEPTION");
 			}
+    		 
+    		 if(totalBytesWritten >= IdcDm.fileLength){
+					System.out.println("YAAAAAAA");
+					break;
+				} else {
+					//System.out.println("NOO");
+					//System.out.println("total Written " + totalBytesWritten + " :" + IdcDm.fileLength);
+				}
+    		 
     	 }
-    	
+    	System.out.println("CLOSE FILE");
     	outfile.close();
     	
     }

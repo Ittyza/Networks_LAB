@@ -17,35 +17,34 @@ import java.util.concurrent.Semaphore;
 
 class TokenBucket {
 	
-	private AtomicLong tokenAmount;
-	private AtomicBoolean isTerminate;
+	private AtomicLong m_Tokens;
+	private AtomicBoolean m_IsTerminated;
 
     TokenBucket() {
-    	this.isTerminate = new AtomicBoolean(false);
-    	this.tokenAmount = new AtomicLong();
+    	this.m_IsTerminated = new AtomicBoolean(false);
+    	this.m_Tokens = new AtomicLong();
     }
 
     synchronized void take(long tokens) {
-    	long currentAmount = this.tokenAmount.get();
-    	// setting the amount of available tokens to be the current amount minus the taken tokens
-    	this.tokenAmount.set(currentAmount - tokens); 
+    	long currentAmount = this.m_Tokens.get();
+    	this.m_Tokens.set(currentAmount - tokens); 
     	
     }
 
     void terminate() {
-    	this.isTerminate.set(true);
+    	this.m_IsTerminated.set(true);
     }
 
     boolean terminated() {
-    	return this.isTerminate.get();
+    	return this.m_IsTerminated.get();
     }
 
     void set(long tokens) {
-        this.tokenAmount.set(tokens);
+        this.m_Tokens.set(tokens);
     }
     
     void add(long tokens) {
-    	if(this.tokenAmount.addAndGet(tokens) > 0){
+    	if(this.m_Tokens.addAndGet(tokens) > 0){
     	}
     }
     

@@ -53,7 +53,7 @@ public class HTTPRangeGetter implements Runnable {
 
         int code = httpConnection.getResponseCode();
         // these codes are the good ones according to RFC 7233 (you must read that one!)
-        System.out.println("code " + code);
+       // System.out.println("code " + code);
         if(code == 200 || code == 206){
         	
         	byte data[] = new byte[CHUNK_SIZE];
@@ -66,11 +66,16 @@ public class HTTPRangeGetter implements Runnable {
             {
                 outQueue.add(new Chunk(data, offset, bytesRead));
                // System.out.println("offset " + offset);
-                offset += bytesRead + 1;
+                offset += bytesRead;
                 tokenBucket.take(CHUNK_SIZE);
                 totalBytesReadFromRange += bytesRead;
                 
             }
+            // added because of the -1
+           if(range.isLastRange){
+        	   totalBytesReadFromRange++;
+           }
+            
             
             range.inWorker = false;
             
@@ -79,22 +84,21 @@ public class HTTPRangeGetter implements Runnable {
             System.out.println(totalBytesReadFromRange + " : " + range.getLength());
             if(totalBytesReadFromRange == this.range.getLength()){
             	range.isWritten = true;
-            	System.out.println("JONNY WE GOT THE ENTIRE RANGE");
+            	System.out.println("JONNY WE GOT THE ENTIRE RANGE " + range.index);
             } else {
             	
             	
             //THROW BACK INTO EXECUTOER 
-            	
+            	System.out.println("range not downloaded");
             	IdcDm.executor.submit(this);
             	
-              System.out.println("range not downloaded");
             
             }
           //  System.out.println(offset);
         	
         }
         
-        
+        tokenBucket.terminate();
         httpConnection.disconnect();
         dataInputStream.close();
         
@@ -105,7 +109,12 @@ public class HTTPRangeGetter implements Runnable {
         try {
             this.downloadRange();
         } catch (IOException | InterruptedException e) {
-           
+           try {
+			wait();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
             System.err.println("Download range "+ this.range +" failed");
         }
     }
