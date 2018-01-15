@@ -33,69 +33,45 @@ public class HTTPRangeGetter implements Runnable {
 
     
     private void downloadRange() throws IOException, InterruptedException {
-      
-
+     
     	URL url = new URL(this.url);
     	HttpURLConnection httpConnection = (HttpURLConnection) url.openConnection();
-    	
     	httpConnection.setRequestMethod("GET");
         httpConnection.setReadTimeout(READ_TIMEOUT);
         httpConnection.setConnectTimeout(CONNECT_TIMEOUT);
-        // this is for the range request to be legit
         String rangeString = String.format("bytes=%d-%d", range.getStart() , range.getEnd());
         httpConnection.setRequestProperty("Range", rangeString);
         httpConnection.connect();
-        
-       
         BufferedInputStream  dataInputStream = new  BufferedInputStream(httpConnection.getInputStream());
-        // not sure when to take tokens but i think its before the loop 
-        
-
         int code = httpConnection.getResponseCode();
-        // these codes are the good ones according to RFC 7233 (you must read that one!)
-       // System.out.println("code " + code);
+        
         if(code == 200 || code == 206){
-        	
         	byte data[] = new byte[CHUNK_SIZE];
             int bytesRead = 0;
             long offset = range.getStart();
             int totalBytesReadFromRange = 0;
-
-            // reads chunk_size of bytes and adds to chunk queue
-            while ((bytesRead = dataInputStream.read(data, 0, CHUNK_SIZE)) != -1)
-            {
+            while ((bytesRead = dataInputStream.read(data, 0, CHUNK_SIZE)) != -1) {
                 outQueue.add(new Chunk(data, offset, bytesRead));
-               // System.out.println("offset " + offset);
                 offset += bytesRead;
                 tokenBucket.take(CHUNK_SIZE);
                 totalBytesReadFromRange += bytesRead;
-                
             }
             // added because of the -1
            if(range.isLastRange){
         	   totalBytesReadFromRange++;
            }
             
-            
             range.inWorker = false;
-            
-            // iswritten flag 
-            
-            System.out.println(totalBytesReadFromRange + " : " + range.getLength());
+          //  System.out.println(totalBytesReadFromRange + " : " + range.getLength());
             if(totalBytesReadFromRange == this.range.getLength()){
             	range.isWritten = true;
-            	System.out.println("JONNY WE GOT THE ENTIRE RANGE " + range.index);
+            //	System.out.println("JONNY WE GOT THE ENTIRE RANGE " + range.index);
+            	IdcDm.metadata.addRange(range);
             } else {
-            	
-            	
             //THROW BACK INTO EXECUTOER 
-            	System.out.println("range not downloaded");
+            //	System.out.println("range not downloaded");
             	IdcDm.executor.submit(this);
-            	
-            
-            }
-          //  System.out.println(offset);
-        	
+            }	
         }
         
         tokenBucket.terminate();
@@ -112,7 +88,6 @@ public class HTTPRangeGetter implements Runnable {
            try {
 			wait();
 		} catch (InterruptedException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
             System.err.println("Download range "+ this.range +" failed");
