@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -26,7 +27,7 @@ public class FileWriter implements Runnable {
     	
     	RandomAccessFile outfile = new RandomAccessFile(downloadableMetadata.getFilename(), "rw");
     	// TODO: write metadeta updates
-    	
+    	long totalBytesWritten = 0;
     	 while(true){	 
     		 try {
     			 
@@ -36,7 +37,13 @@ public class FileWriter implements Runnable {
 					System.out.println("end of writing!");
     				break; 
     			 } 
-				outfile.write(chunk.getData(), (int)chunk.getOffset(), chunk.getSize_in_bytes());
+				System.out.println(totalBytesWritten + " : " + IdcDm.fileLength);
+				if(totalBytesWritten + 1000 >= IdcDm.fileLength){
+					break;
+				}
+				
+				outfile.write(chunk.getData(), 0, chunk.getSize_in_bytes());
+				totalBytesWritten += chunk.getSize_in_bytes();
 			} catch (InterruptedException e) {
 				
 			}

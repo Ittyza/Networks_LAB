@@ -4,10 +4,15 @@
 class Range {
     private Long start;
     private Long end;
+    public boolean isWritten;
+    public boolean inWorker;
+    
+    public int index;
 
     Range(Long start, Long end) {
         this.start = start;
         this.end = end;
+        this.isWritten = false;
     }
 
     Long getStart() {
