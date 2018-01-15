@@ -19,7 +19,7 @@ class DownloadableMetadata {
     public double FileSize;
     public static Range[] AllRanges;
     
-    
+    private int lastRange = 0;
     public static Range[] RangesInWorker;
     public File metadataFile;
     
@@ -62,10 +62,12 @@ class DownloadableMetadata {
     }
 
     Range getMissingRange() {
-    	for (int i = 0; i < AllRanges.length; i++) {
+    	for (int i = lastRange; i < AllRanges.length; i++) {
 			
     		if(!AllRanges[i].isWritten){
     			return AllRanges[i];
+    		} else {
+    			lastRange = i;
     		}
     		
 //    		if(!AllRanges[i].inWorker && !AllRanges[i].isWritten){

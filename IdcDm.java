@@ -31,8 +31,8 @@ public class IdcDm {
 
        // String url = args[0];
       //  String url = "https://archive.org/download/Mario1_500/Mario1_500.avi";
-       // String url =  "https://upload.wikimedia.org/wikipedia/commons/d/dd/Big_%26_Small_Pumkins.JPG";
-        String url   =  "https://s.hswstatic.com/gif/big-bang-sound-1jpg.jpg";
+        String url =  "https://upload.wikimedia.org/wikipedia/commons/d/dd/Big_%26_Small_Pumkins.JPG";
+       // String url   =  "https://s.hswstatic.com/gif/big-bang-sound-1jpg.jpg";
 
         System.err.printf("Downloading");
         if (numberOfWorkers > 1)
@@ -76,11 +76,11 @@ public class IdcDm {
             FileWriter fileWriter = new FileWriter(metadata, chunkQueue);
 	         Thread writerThread = new Thread(fileWriter);
 	         writerThread.start();
+	         Range curr;
 	         
-//            while(metadata.getMissingRange() != null){
+//            while( (curr = metadata.getMissingRange()) != null){
 //            	
-//            	Range curr = metadata.getMissingRange();
-//            	
+////            	Range curr = metadata.getMissingRange();
 //            	if(!curr.inWorker){
 //            		executor.submit(new HTTPRangeGetter(url, curr, chunkQueue, tokenBucket));
 //            	}

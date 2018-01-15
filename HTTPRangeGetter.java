@@ -81,10 +81,14 @@ public class HTTPRangeGetter implements Runnable {
             	range.isWritten = true;
             	System.out.println("JONNY WE GOT THE ENTIRE RANGE");
             } else {
-            	// redownload range
+            	
+            	
+            //THROW BACK INTO EXECUTOER 
+            	
+            	IdcDm.executor.submit(this);
+            	
               System.out.println("range not downloaded");
-              //DownloadableMetadata.AllRanges[range.index].isWritten = true;
-              DownloadableMetadata.RangesInWorker[range.index] = null;
+            
             }
           //  System.out.println(offset);
         	
